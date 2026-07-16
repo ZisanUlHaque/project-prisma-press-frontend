@@ -1,3 +1,10 @@
+import { Button } from "@/components/ui/button";
+
 export default function HomePage() {
-  return <div>Hello Next.js</div>;
+  return (
+    <div>
+      Hello Next.js
+      <Button>Click</Button>
+    </div>
+  );
 }
