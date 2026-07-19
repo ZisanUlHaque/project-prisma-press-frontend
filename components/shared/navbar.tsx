@@ -1,48 +1,79 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { LogOut, Settings, User } from 'lucide-react'
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-// Navigation items array
+import { LogOut, Settings, User } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Button } from "../ui/button";
+import { logout } from "@/service/logout";
+
+// Navigation items configuration
 const navItems = [
-  { href: '/', label: 'Home' },
-  { href: '/about', label: 'About' },
-  { href: '/services', label: 'Services' },
-  { href: '/contact', label: 'Contact' },
-]
+  { label: "Home", href: "/" },
+  { label: "About", href: "/about" },
+  { label: "Services", href: "/services" },
+  { label: "Contact", href: "/contact" },
+];
 
-// User dropdown options array
+// User menu items configuration
 const userMenuItems = [
-  { icon: User, label: 'Profile', action: 'profile' },
-  { icon: Settings, label: 'Settings', action: 'settings' },
-  { icon: LogOut, label: 'Logout', action: 'logout' },
-]
+  { label: "Profile", icon: User, action: "profile" },
+  { label: "Settings", icon: Settings, action: "settings" },
+];
 
-export default function Navbar() {
-  const [user, setUser] = useState({ name: 'John Doe', email: 'john@example.com' })
-
-  const handleUserMenuClick = (action: string) => {
-    console.log(`User clicked: ${action}`)
-    if (action === 'logout') {
-      // Handle logout logic
-      setUser({ name: '', email: '' })
+type IUser = {
+    success : boolean,
+    message : string,
+    data : {
+        profile : {
+            id : string,
+            name : string,
+            email : string,
+            activeStatus : string,
+            role : string,
+            createdAt : string,
+            updatedAt : string,
+            profile : {
+                id : string,
+                profilePhoto : string,
+                bio : string | null,
+                userId : string,
+                createdAt : string,
+                updatedAt : string
+            }
+        }
     }
-    // Add more action handlers as needed
-  }
+}
+
+type NavbarProps = {
+    user : IUser
+}
+
+export function Navbar({user} : NavbarProps) {
+    const router = useRouter()
+  const handleUserMenuAction = async (action: string) => {
+
+    if(action === "logout"){
+        await logout();
+        toast.success("User Logged Out Successfully!");
+        router.push("/login");
+    }
+  };
 
   return (
-    <nav className="border-b bg-white">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-        {/* Logo */}
+    <nav className="border-b border-border">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
         <div className="flex items-center">
           <Link href="/" className="flex items-center gap-2">
             <div className="size-8 rounded-lg bg-gradient-to-br from-green-700 to-green-700 flex items-center justify-center">
@@ -52,21 +83,22 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Navigation Links */}
-        <div className="hidden gap-8 md:flex">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-sm font-medium text-gray-700 transition-colors hover:text-gray-900"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
+          {/* Nav Links */}
+          <div className="hidden md:absolute md:left-1/2 md:transform md:-translate-x-1/2 md:flex md:items-center md:gap-8">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-foreground hover:text-primary transition-colors text-sm font-medium"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
 
-        {/* User Dropdown */}
-        {user.name ? (
+          {/* User Dropdown */}
+          {
+            user.success ? (
                 <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <div className="cursor-pointer">
@@ -76,30 +108,46 @@ export default function Navbar() {
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <div className="px-2 py-1.5">
-                <p className="text-sm font-medium">{user.name}</p>
-                <p className="text-xs text-gray-500">{user.email}</p>
-              </div>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm font-medium">
+                    {user.data?.profile.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {user.data?.profile.email}
+                  </p>
+                </div>
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               {userMenuItems.map((item) => {
-                const Icon = item.icon
+                const Icon = item.icon;
                 return (
                   <DropdownMenuItem
                     key={item.action}
-                    onClick={() => handleUserMenuClick(item.action)}
-                    className="cursor-pointer"
+                    onClick={() => handleUserMenuAction(item.action)}
                   >
-                    <Icon className="mr-2 size-4" />
+                    <Icon className="w-4 h-4 mr-2" />
                     <span>{item.label}</span>
                   </DropdownMenuItem>
-                )
+                );
               })}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={async () => {
+                await handleUserMenuAction("logout");
+              }}>
+                <LogOut className="w-4 h-4 mr-2" />
+                <span>Log out</span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        ) : (
-          <Button>Sign In</Button>
-        )}
+            ) : <Link href={"/login"} >
+                   <Button className="cursor-pointer">
+                        Login
+                   </Button>
+            </Link>
+          }
+        </div>
       </div>
     </nav>
-  )
+  );
 }
