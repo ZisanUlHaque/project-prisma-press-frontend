@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import jwt, { JwtPayload } from "jsonwebtoken" 
 
 type LoginState = {
     success: true,
@@ -47,7 +48,18 @@ export const loginAction = async(prevState: LoginState, formData: FormData) => {
         sameSite : "lax"
       })
 
-      redirect("/dashboard","replace") //server site navigation
+      const decodedToken = jwt.decode(result.data.accessToken) as JwtPayload;
+      
+      if (decodedToken.role === 'USER') {
+        redirect("/dashboard","replace")
+      }
+      if (decodedToken.role === 'ADMIN') {
+        redirect("/admin-dashboard","replace")
+      }
+      if (decodedToken.role === 'AUTHOR') {
+        redirect("/author-dashboard","replace")
+      }
+
     }
     return result
 };
