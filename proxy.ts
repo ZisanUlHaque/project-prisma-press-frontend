@@ -98,6 +98,8 @@ export const config = {
     matcher: [
         // '/dashboard/:path*',
         // '/admin-dashboard/:path*',
+        
+        // Exclude API routes, static files, image optimizations, and .png files
         '/((?!api|_next/static|favicon.ico|_next/image|.*\\.png$).*)'
     ],
 }
