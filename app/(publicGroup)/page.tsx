@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button";
+import HeroSection from "@/components/hero/HeroSection";
 
 export default function HomePage() {
   return (
-    <div>
-      Hello Next.js
-      <Button>Click</Button>
-    </div>
+    <main className="bg-background">
+      <HeroSection />
+      <HeroSection />
+    </main>
   );
 }
