@@ -32,7 +32,6 @@ export function NewsSearchBar() {
 
 
         debouncedReference.current = setTimeout(() =>{
-            console.log(value);
 
             const params = new URLSearchParams();
 
