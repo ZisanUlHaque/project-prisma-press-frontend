@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { logout } from "@/service/logout";
 import { useState, useEffect } from "react";
+import { NavbarProps } from "@/lib/types";
 
 // Navigation items configuration
 const navItems = [
@@ -33,33 +34,6 @@ const userMenuItems = [
   { label: "Settings", icon: Settings, action: "settings" },
 ];
 
-type IUser = {
-  success: boolean;
-  message: string;
-  data: {
-    profile: {
-      id: string;
-      name: string;
-      email: string;
-      activeStatus: string;
-      role: string;
-      createdAt: string;
-      updatedAt: string;
-      profile: {
-        id: string;
-        profilePhoto: string;
-        bio: string | null;
-        userId: string;
-        createdAt: string;
-        updatedAt: string;
-      };
-    };
-  };
-};
-
-type NavbarProps = {
-  user: IUser;
-};
 
 export function Navbar({ user }: NavbarProps) {
   const router = useRouter();
@@ -134,7 +108,7 @@ export function Navbar({ user }: NavbarProps) {
 
             {/* User Dropdown / Login Button */}
             {user.success ? (
-              <DropdownMenu>
+              <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
                   <div
                     className={`cursor-pointer p-2 rounded-full transition ${
