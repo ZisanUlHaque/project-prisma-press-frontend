@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { LogOut, Settings, User } from "lucide-react";
+import { LayoutDashboard, LogOut, Settings, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -30,6 +30,7 @@ const navItems = [
 
 // User menu items configuration
 const userMenuItems = [
+  { label: "Dashboard", icon: LayoutDashboard, action: "dashboard" },
   { label: "Profile", icon: User, action: "profile" },
   { label: "Settings", icon: Settings, action: "settings" },
 ];
@@ -40,7 +41,6 @@ export function Navbar({ user }: NavbarProps) {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // ✅ KEY FIX: transparent ONLY on homepage top — everywhere else solid white
   const isHome = pathname === "/";
   const solid = !isHome || isScrolled;
 
@@ -49,12 +49,29 @@ export function Navbar({ user }: NavbarProps) {
       setIsScrolled(window.scrollY > 20);
     };
 
-    handleScroll(); // check on mount (refresh mid-scroll)
+    handleScroll(); 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleUserMenuAction = async (action: string) => {
+
+    if (action === "dashboard") {
+      if (user.data.profile.role === "USER") {
+        router.push("/dashboard")
+      }
+      else if (user.data.profile.role === "ADMIN") {
+        router.push("/admin-dashboard")
+      }
+      else if (user.data.profile.role === "AUTHOR") {
+        router.push("/author-dashboard")
+      }
+
+      return;
+
+    }
+
+    
     if (action === "logout") {
       await logout();
       toast.success("User Logged Out Successfully!");
@@ -186,7 +203,6 @@ export function Navbar({ user }: NavbarProps) {
         </div>
       </nav>
 
-      {/* ✅ SPACER: navbar fixed tai onno page gula te content niche namate hobe */}
       {!isHome && <div className="h-16" />}
     </>
   );
